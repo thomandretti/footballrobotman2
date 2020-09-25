@@ -1,0 +1,13 @@
+espn: # ESPN-specific configuration values. These tell the app how to interact with your league
+    cookies: # See https://github.com/mkreiser/ESPN-Fantasy-Football-API#working-with-private-leagues
+        espnS2: espnS2Cookie
+        SWID: espnSWIDCookie
+    leagueId: 12345678
+    seasonId: 2020
+discord: # Discord-specific configuration values. These tell the app how to interact with your discord server
+    token: discordBotToken # See https://discordjs.guide/preparations/setting-up-a-bot-application.html#your-token
+    defaultChannelId: '0123456789ABCDEFGH' # This is where the bot will send anything that isn't a direct response to a message
+bot: # Configuration values affecting the bot's behavior
+    prefix: botCommandPrefix # The bot will treat any message starting with this text as a command
+    wordDetectionResponses: # The bot will respond to any message containing these words with the corresponding response
+      - wordToDetect: response
