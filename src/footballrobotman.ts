@@ -158,7 +158,10 @@ export class FootballRobotMan {
     }
 
     const earnings = price - this.config.pandl.startingValue;
-    const earningsString = `$${Math.abs(earnings).toFixed(2)}`;
+    const percentChange = `($${Math.abs(
+      (earnings / this.config.pandl.startingValue) * 100
+    ).toFixed(0)}%)`;
+    const earningsString = `$${Math.abs(earnings).toFixed(2)} ${percentChange}`;
     let pnlStatement: string;
     if (earnings > 0) {
       pnlStatement = this.config.pandl.upMessageTemplate.replace(
