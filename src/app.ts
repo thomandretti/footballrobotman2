@@ -1,13 +1,11 @@
-// eslint-disable-next-line import/order
-import * as footballrobotman from "./footballrobotman";
-
+import alphavantage from "alphavantage";
 import config from "config";
+import discordjs from "discord.js";
+import winston from "winston";
 
-import discordjs = require("discord.js");
-import winston = require("winston");
-import espnApi = require("espn-fantasy-football-api/node-dev");
-
-import espnwrapper = require("./espnwrapper");
+import { Client as EspnClient } from "espn-fantasy-football-api/node-dev";
+import { FootballRobotMan } from "./footballrobotman";
+import { AlphaVantageClient, Stonks } from "./stonks";
 
 const { createLogger, format, transports } = winston;
 
@@ -26,22 +24,27 @@ const LOGGER = createLogger({
 
 const discordClient = new discordjs.Client();
 
-const espnClient = new espnApi.Client({
+const espnClient = new EspnClient({
   leagueId: config.get("espn.leagueId"),
 });
 espnClient.setCookies(config.get("espn.cookies"));
 
-const fbrm = new footballrobotman.FootballRobotMan(
+const stonks = new Stonks(
+  alphavantage({ key: config.get("alphavantage.key") }) as AlphaVantageClient
+);
+
+const fbrm = new FootballRobotMan(
   LOGGER,
   discordClient,
-  espnClient as espnwrapper.EspnWrapper,
+  espnClient,
   config.get("espn.seasonId"),
   config.get("discord.defaultChannelId"),
-  config.get("bot.wordDetectionResponses")
+  stonks,
+  config.get("bot")
 );
 
 discordClient.on("ready", () => {
-  fbrm.start(config.get("bot.prefix"));
+  fbrm.start();
   LOGGER.log("info", "Bot is up");
 });
 

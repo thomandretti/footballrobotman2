@@ -11,3 +11,11 @@ bot: # Configuration values affecting the bot's behavior
   prefix: botCommandPrefix # The bot will treat any message starting with this text as a command
   wordDetectionResponses: # The bot will respond to any message containing these words with the corresponding response
     - wordToDetect: response
+  pandl: # Configuration values for tracking the balance of a variable pot
+    stockSymbol: tsla
+    startingValue: 420
+    upMessageTemplate: Up {0}
+    downMessageTemplate: Down {0}
+    evenMessage: You're even
+alphavantage:
+  key: 1XVGRJTV420AN658

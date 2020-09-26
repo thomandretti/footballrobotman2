@@ -5,6 +5,7 @@ This is a very silly discord bot built around a fantasy football league. It can 
 1. Respond to messages containing certain words/phrases with a predefined response
 1. Respond to commands starting with a given prefix. The following commands are supported
    - `standings` - send a summary of the current league standings
+   - `pot` - send a summary of the current pot value
 1. Post standings on a schedule
 
 ## Technologies
@@ -40,7 +41,7 @@ This currently gets deployed as a docker container. To package and run the 'prod
 
 ```sh
 docker build -t "$USER/footballrobotman2" .
-docker start "$USER/footballrobotman2"
+docker run "$USER/footballrobotman2"
 ```
 
 TODO: add an npm script for this
