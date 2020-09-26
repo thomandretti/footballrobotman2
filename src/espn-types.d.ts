@@ -1,1 +1,1 @@
-declare module 'espn-fantasy-football-api/node-dev'
+declare module "espn-fantasy-football-api/node-dev";

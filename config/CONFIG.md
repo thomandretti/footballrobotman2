@@ -8,5 +8,5 @@ At a minimum, place a file called `default.yaml` in this directory specifying co
 
 ## Notes
 
-* The project's `.gitignore` contains paths for `default.yaml` and `production.yaml` to make it harder to accidentally check in these files.
-* There is probably a better way to do this, but I am lazy.
+- The project's `.gitignore` contains paths for `default.yaml` and `production.yaml` to make it harder to accidentally check in these files.
+- There is probably a better way to do this, but I am lazy.
