@@ -119,6 +119,14 @@ export class FootballRobotMan {
         ) as TextChannel
       );
     });
+
+    scheduleJob({ dayOfWeek: 12345, hour: 10, minute: 0 }, () => {
+      this.sendPot(
+        this.discordClient.channels.cache.get(
+          this.defaultChannelId
+        ) as TextChannel
+      );
+    });
   }
 
   private async sendStandings(
