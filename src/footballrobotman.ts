@@ -109,7 +109,7 @@ export class FootballRobotMan {
   }
 
   start(): void {
-    this.discordClient.on("message", this.handleMessage);
+    this.discordClient.on("message", (message) => this.handleMessage(message));
 
     scheduleJob({ dayOfWeek: 2, hour: 9, minute: 0 }, () => {
       this.sendStandings(

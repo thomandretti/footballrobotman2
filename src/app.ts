@@ -45,7 +45,7 @@ const fbrm = new FootballRobotMan(
 
 discordClient.on("ready", () => {
   fbrm.start();
-  LOGGER.log("info", "Bot is up");
+  LOGGER.info("Bot is up");
 });
 
 discordClient.login(config.get("discord.token")).then(
