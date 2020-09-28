@@ -1,6 +1,12 @@
-import { DateTime } from "luxon";
+type QuoteResponse = {
+  "Global Quote": GlobalQuote;
+};
 
-type DailyPrices = <T = unknown>(
+type GlobalQuote = {
+  "05. price": string;
+};
+
+type AlphaVantageAPI = <T = unknown>(
   symbol: string,
   outputsize?: string,
   datatype?: string,
@@ -9,15 +15,9 @@ type DailyPrices = <T = unknown>(
 
 export interface AlphaVantageClient {
   data: {
-    daily: DailyPrices;
+    quote: AlphaVantageAPI;
   };
 }
-
-type ClosePrice = { "4. close": string };
-
-type DailyData = {
-  "Time Series (Daily)": Record<string, ClosePrice>;
-};
 
 export class Stonks {
   readonly alphavantageClient: AlphaVantageClient;
@@ -27,18 +27,9 @@ export class Stonks {
   }
 
   async getLatestClosePrice(symbol: string): Promise<number | null> {
-    const today = DateTime.local();
-    const yesterday = today.minus({ days: 1 });
-    const data = (await this.alphavantageClient.data.daily(
+    const data = (await this.alphavantageClient.data.quote(
       symbol
-    )) as DailyData;
-    const closePrices = data["Time Series (Daily)"];
-    let latestPrice: ClosePrice;
-    if (today.toISODate() in closePrices) {
-      latestPrice = closePrices[today.toISODate()];
-    } else {
-      latestPrice = closePrices[yesterday.toISODate()];
-    }
-    return parseFloat(latestPrice["4. close"] as string);
+    )) as QuoteResponse;
+    return parseFloat(data["Global Quote"]["05. price"]);
   }
 }

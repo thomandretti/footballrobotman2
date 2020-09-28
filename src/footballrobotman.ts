@@ -15,17 +15,14 @@ import { Stonks } from "./stonks";
 
 const { scheduleJob } = scheduleJobPkg;
 
-const MILLISECONDS_IN_WEEK = 604800000;
-const SEASON_START_DATE: Date = new Date("2020-09-15");
+const SEASON_START_DATE: DateTime = DateTime.fromISO("2020-09-15");
 
 function compareTeams(teamOne: Team, teamTwo: Team): number {
   return teamOne.playoffSeed - teamTwo.playoffSeed;
 }
 
-function getWeekNumber(now: Date): number {
-  const millisElapsed: number =
-    now.getMilliseconds() - SEASON_START_DATE.getMilliseconds();
-  return Math.ceil(millisElapsed / MILLISECONDS_IN_WEEK);
+function getWeekNumber(now: DateTime): number {
+  return Math.floor(now.diff(SEASON_START_DATE).as("weeks")) + 1;
 }
 
 export interface BotConfig {
@@ -100,7 +97,10 @@ export class FootballRobotMan {
       // TODO: change this to a map lookup or something
       if (command === "standings") {
         this.logger.info("request for standings");
-        this.sendStandings(getWeekNumber(message.createdAt), message.channel);
+        this.sendStandings(
+          getWeekNumber(DateTime.fromJSDate(message.createdAt)),
+          message.channel
+        );
       } else if (command === "pot") {
         this.logger.info("request for pot");
         this.sendPot(message.channel);
@@ -113,7 +113,7 @@ export class FootballRobotMan {
 
     scheduleJob({ dayOfWeek: 2, hour: 9, minute: 0 }, () => {
       this.sendStandings(
-        getWeekNumber(new Date()),
+        getWeekNumber(DateTime.local()),
         this.discordClient.channels.cache.get(
           this.defaultChannelId
         ) as TextChannel
@@ -166,7 +166,7 @@ export class FootballRobotMan {
     }
 
     const earnings = price - this.config.pandl.startingValue;
-    const percentChange = `($${Math.abs(
+    const percentChange = `(${Math.abs(
       (earnings / this.config.pandl.startingValue) * 100
     ).toFixed(0)}%)`;
     const earningsString = `$${Math.abs(earnings).toFixed(2)} ${percentChange}`;
