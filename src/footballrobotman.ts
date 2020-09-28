@@ -120,7 +120,7 @@ export class FootballRobotMan {
       );
     });
 
-    scheduleJob({ dayOfWeek: 12345, hour: 10, minute: 0 }, () => {
+    scheduleJob({ dayOfWeek: 12345, hour: 14, minute: 0 }, () => {
       this.sendPot(
         this.discordClient.channels.cache.get(
           this.defaultChannelId
