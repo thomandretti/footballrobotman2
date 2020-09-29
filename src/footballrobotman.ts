@@ -8,7 +8,7 @@ import {
 } from "discord.js";
 import { Client as EspnClient, Team } from "espn-fantasy-football-api/node-dev";
 import { DateTime } from "luxon";
-import scheduleJobPkg from "node-schedule";
+import scheduleJobPkg, { Range } from "node-schedule";
 import winston from "winston";
 
 import { Stonks } from "./stonks";
@@ -120,7 +120,7 @@ export class FootballRobotMan {
       );
     });
 
-    scheduleJob({ dayOfWeek: 12345, hour: 14, minute: 0 }, () => {
+    scheduleJob({ dayOfWeek: new Range(1, 5), hour: 14, minute: 0 }, () => {
       this.sendPot(
         this.discordClient.channels.cache.get(
           this.defaultChannelId
