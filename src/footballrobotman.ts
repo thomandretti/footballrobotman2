@@ -111,22 +111,33 @@ export class FootballRobotMan {
   start(): void {
     this.discordClient.on("message", (message) => this.handleMessage(message));
 
-    scheduleJob({ dayOfWeek: 2, hour: 9, minute: 0 }, () => {
-      this.sendStandings(
-        getWeekNumber(DateTime.local()),
-        this.discordClient.channels.cache.get(
-          this.defaultChannelId
-        ) as TextChannel
-      );
-    });
+    scheduleJob(
+      { dayOfWeek: 2, hour: 9, minute: 0, tz: "America/Los_Angeles" },
+      () => {
+        this.sendStandings(
+          getWeekNumber(DateTime.local()),
+          this.discordClient.channels.cache.get(
+            this.defaultChannelId
+          ) as TextChannel
+        );
+      }
+    );
 
-    scheduleJob({ dayOfWeek: new Range(1, 5), hour: 14, minute: 0 }, () => {
-      this.sendPot(
-        this.discordClient.channels.cache.get(
-          this.defaultChannelId
-        ) as TextChannel
-      );
-    });
+    scheduleJob(
+      {
+        dayOfWeek: new Range(1, 5),
+        hour: 14,
+        minute: 0,
+        tz: "America/Los_Angeles",
+      },
+      () => {
+        this.sendPot(
+          this.discordClient.channels.cache.get(
+            this.defaultChannelId
+          ) as TextChannel
+        );
+      }
+    );
   }
 
   private async sendStandings(
