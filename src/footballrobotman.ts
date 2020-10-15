@@ -27,7 +27,7 @@ function getWeekNumber(now: DateTime): number {
 
 export interface BotConfig {
   prefix: string;
-  wordDetectionResponses: [{ word: string; response: string }];
+  wordDetectionResponses: [WordDetectionConfig];
   pandl: PandLConfig;
 }
 
@@ -37,6 +37,11 @@ export interface PandLConfig {
   upMessageTemplate: string;
   downMessageTemplate: string;
   evenMessage: string;
+}
+
+export interface WordDetectionConfig {
+  word: string;
+  response: string;
 }
 
 export class FootballRobotMan {
@@ -81,12 +86,15 @@ export class FootballRobotMan {
       this.logger.info("a bot sent this message, ignoring it");
       return;
     }
-    this.config.wordDetectionResponses.forEach((element) => {
-      if (message.content.toLowerCase().includes(element.word)) {
-        this.logger.info(`message contains ${element.word}`);
-        message.channel.send(element.response);
+    this.config.wordDetectionResponses.forEach(
+      (element: WordDetectionConfig) => {
+        this.logger.info(`Looking for ${element.word} in ${message.content}`);
+        if (message.content.toLowerCase().includes(element.word)) {
+          this.logger.info(`message contains ${element.word}`);
+          message.channel.send(element.response);
+        }
       }
-    });
+    );
 
     if (message.content.toLowerCase().startsWith(this.config.prefix)) {
       this.logger.info("Prefix detected");

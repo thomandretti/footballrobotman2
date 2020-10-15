@@ -10,7 +10,8 @@ discord: # Discord-specific configuration values. These tell the app how to inte
 bot: # Configuration values affecting the bot's behavior
   prefix: botCommandPrefix # The bot will treat any message starting with this text as a command
   wordDetectionResponses: # The bot will respond to any message containing these words with the corresponding response
-    - wordToDetect: response
+    - word: wordToDetect
+      response: response
   pandl: # Configuration values for tracking the balance of a variable pot
     stockSymbol: tsla
     startingValue: 420
