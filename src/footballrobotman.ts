@@ -119,8 +119,9 @@ export class FootballRobotMan {
   start(): void {
     this.discordClient.on("message", (message) => this.handleMessage(message));
 
+    // TODO: define schedules in config
     scheduleJob(
-      { dayOfWeek: 2, hour: 9, minute: 0, tz: "America/Los_Angeles" },
+      { dayOfWeek: 3, hour: 9, minute: 0, tz: "America/Los_Angeles" },
       () => {
         this.sendStandings(
           getWeekNumber(DateTime.local()),
