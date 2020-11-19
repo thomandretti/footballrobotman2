@@ -100,7 +100,8 @@ export class FootballRobotMan {
       this.logger.info("Prefix detected");
       const command = message.content
         .substring(this.config.prefix.length)
-        .trimStart();
+        .trimStart()
+        .toLowerCase();
 
       // TODO: change this to a map lookup or something
       if (command === "standings") {
