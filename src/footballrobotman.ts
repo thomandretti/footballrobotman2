@@ -1,29 +1,8 @@
-import {
-  DMChannel,
-  Message,
-  MessageEmbed,
-  NewsChannel,
-  TextChannel,
-  Client as discord,
-} from "discord.js";
-import { Client as EspnClient, Team } from "espn-fantasy-football-api/node-dev";
-import { DateTime } from "luxon";
-import scheduleJobPkg, { Range } from "node-schedule";
+import { Message, Client as discord } from "discord.js";
+import { Client as EspnClient } from "espn-fantasy-football-api/node-dev";
 import winston from "winston";
 
 import { Stonks } from "./stonks";
-
-const { scheduleJob } = scheduleJobPkg;
-
-const SEASON_START_DATE: DateTime = DateTime.fromISO("2020-09-15");
-
-function compareTeams(teamOne: Team, teamTwo: Team): number {
-  return teamOne.playoffSeed - teamTwo.playoffSeed;
-}
-
-function getWeekNumber(now: DateTime): number {
-  return Math.floor(now.diff(SEASON_START_DATE).as("weeks")) + 1;
-}
 
 export interface BotConfig {
   prefix: string;
@@ -95,126 +74,9 @@ export class FootballRobotMan {
         }
       }
     );
-
-    if (message.content.toLowerCase().startsWith(this.config.prefix)) {
-      this.logger.info("Prefix detected");
-      const command = message.content
-        .substring(this.config.prefix.length)
-        .trimStart()
-        .toLowerCase();
-
-      // TODO: change this to a map lookup or something
-      if (command === "standings") {
-        this.logger.info("request for standings");
-        this.sendStandings(
-          getWeekNumber(DateTime.fromJSDate(message.createdAt)),
-          message.channel
-        );
-      } else if (command === "pot") {
-        this.logger.info("request for pot");
-        this.sendPot(message.channel);
-      }
-    }
   }
 
   start(): void {
     this.discordClient.on("message", (message) => this.handleMessage(message));
-
-    // TODO: define schedules in config
-    scheduleJob(
-      { dayOfWeek: 3, hour: 9, minute: 0, tz: "America/Los_Angeles" },
-      () => {
-        this.sendStandings(
-          getWeekNumber(DateTime.local()),
-          this.discordClient.channels.cache.get(
-            this.defaultChannelId
-          ) as TextChannel
-        );
-      }
-    );
-
-    scheduleJob(
-      {
-        dayOfWeek: new Range(1, 5),
-        hour: 14,
-        minute: 0,
-        tz: "America/Los_Angeles",
-      },
-      () => {
-        this.sendPot(
-          this.discordClient.channels.cache.get(
-            this.defaultChannelId
-          ) as TextChannel
-        );
-      }
-    );
-  }
-
-  private async sendStandings(
-    weekNumber: number,
-    channel: TextChannel | DMChannel | NewsChannel
-  ): Promise<void> {
-    this.logger.info(`Sending standings for week ${weekNumber}`);
-
-    const teams = await this.espnClient.getTeamsAtWeek({
-      seasonId: this.seasonId,
-      scoringPeriodId: weekNumber,
-    });
-
-    teams.sort(compareTeams);
-    const lines = teams
-      .map(
-        (element: Team) => `${element.wins}-${element.losses}: ${element.name}`
-      )
-      .join("\n");
-
-    const embed = new MessageEmbed()
-      .setTitle(`Week ${weekNumber} Standings`)
-      .setDescription(lines);
-
-    await channel.send(embed);
-  }
-
-  private async sendPot(
-    channel: TextChannel | DMChannel | NewsChannel
-  ): Promise<void> {
-    const price = await this.stonks.getLatestClosePrice(
-      this.config.pandl.stockSymbol
-    );
-    if (price === null) {
-      this.logger.warn("Couldn't get stock price");
-      return;
-    }
-
-    const earnings = price - this.config.pandl.startingValue;
-    const percentChange = `(${Math.abs(
-      (earnings / this.config.pandl.startingValue) * 100
-    ).toFixed(0)}%)`;
-    const earningsString = `$${Math.abs(earnings).toFixed(2)} ${percentChange}`;
-    let pnlStatement: string;
-    if (earnings > 0) {
-      pnlStatement = this.config.pandl.upMessageTemplate.replace(
-        "{0}",
-        earningsString
-      );
-    } else if (earnings === 0) {
-      pnlStatement = this.config.pandl.evenMessage;
-    } else {
-      pnlStatement = this.config.pandl.downMessageTemplate.replace(
-        "{0}",
-        earningsString
-      );
-    }
-
-    const winningsMessage = `Winner's Take: $${(price * 0.9).toFixed(
-      2
-    )}\nRunner-up's Take: $${(price * 0.1).toFixed(2)}`;
-    const embed = new MessageEmbed()
-      .setTitle(`Pot Summary for ${DateTime.local().toLocaleString()}`)
-      .setDescription(`Pot is currently worth $${price}`)
-      .addField("P & L", pnlStatement)
-      .addField("Winnings", winningsMessage);
-
-    await channel.send(embed);
   }
 }
