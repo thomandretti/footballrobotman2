@@ -8,7 +8,7 @@ import {
 } from "discord.js";
 import { Client as EspnClient, Team } from "espn-fantasy-football-api/node-dev";
 import { DateTime } from "luxon";
-import scheduleJobPkg, { Range } from "node-schedule";
+import scheduleJobPkg from "node-schedule";
 import winston from "winston";
 
 import { Stonks } from "./stonks";
@@ -29,6 +29,7 @@ export interface BotConfig {
   prefix: string;
   wordDetectionResponses: [WordDetectionConfig];
   pandl: PandLConfig;
+  standingsConfig?: StandingsConfig;
 }
 
 export interface PandLConfig {
@@ -37,11 +38,16 @@ export interface PandLConfig {
   upMessageTemplate: string;
   downMessageTemplate: string;
   evenMessage: string;
+  schedule?: scheduleJobPkg.RecurrenceRule;
 }
 
 export interface WordDetectionConfig {
   word: string;
   response: string;
+}
+
+export interface StandingsConfig {
+  schedule: scheduleJobPkg.RecurrenceRule;
 }
 
 export class FootballRobotMan {
@@ -120,34 +126,30 @@ export class FootballRobotMan {
   start(): void {
     this.discordClient.on("message", (message) => this.handleMessage(message));
 
-    // TODO: define schedules in config
-    scheduleJob(
-      { dayOfWeek: 3, hour: 9, minute: 0, tz: "America/Los_Angeles" },
-      () => {
+    if (this.config.standingsConfig) {
+      scheduleJob(this.config.standingsConfig.schedule, () => {
         this.sendStandings(
           getWeekNumber(DateTime.local()),
           this.discordClient.channels.cache.get(
             this.defaultChannelId
           ) as TextChannel
         );
-      }
-    );
+      });
+    } else {
+      this.logger.info("No standings message schedule defined, skipping");
+    }
 
-    scheduleJob(
-      {
-        dayOfWeek: new Range(1, 5),
-        hour: 14,
-        minute: 0,
-        tz: "America/Los_Angeles",
-      },
-      () => {
+    if (this.config.pandl.schedule) {
+      scheduleJob(this.config.pandl.schedule, () => {
         this.sendPot(
           this.discordClient.channels.cache.get(
             this.defaultChannelId
           ) as TextChannel
         );
-      }
-    );
+      });
+    } else {
+      this.logger.info("No p & l message schedule defined, skipping");
+    }
   }
 
   private async sendStandings(
